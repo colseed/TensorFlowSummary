@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head> 
+	<meta charset="utf-8">
+	<title>CSE590 - TensorFlow</title>
+	
+	<!-- <script src="jquery-3.1.1.js"></script> --> 
+	
+	<style>
+	.header {
+		background-color: #ff9900; 
+		color: white; 
+		
+		padding-left: 16px; 
+		padding-right: 16px; 
+		padding-bottom: 8px;
+		padding-top: 8px; 
+	}
+	
+	.main {
+		padding-left: 32px; 
+		padding-right: 32px; 
+		padding-bottom: 48px;
+		padding-top: 16px; 
+	}
+	
+	body {
+		font-family: sans-serif; /*"Lucida Console", "Verdana", sans-serif; */
+		background-color: #ffebcc; /*#ffc180; */
+		color: #331a00; 
+		/*
+		padding-left: 32px; 
+		padding-right: 32px; 
+		padding-bottom: 48px;
+		padding-top: 32px; 
+		*/
+	}
+	
+	a.header {
+		color: white; 
+	}
+	
+	a.main {
+		color: black; 
+	}
+	
+	.header a:visited {
+		color: white; 
+	}
+	
+	.main a:visited {
+		color: black; 
+	}
+	
+	.main a:hover, .header a:hover {
+		color: red; 
+	}
+	
+	img {
+		/*width: 30%;
+		height: 30%;*/
+		padding: 5px; 
+	}
+	<!-- pls forgive my css ;-; --> 
+	</style>
+	
+</head>
+
+<body>
+
+	<!-- ASSIGNMENT 2: make webpage (Big Data programming model other than Hadoop)
+	
+	- Describe the programming model and provide a reference (or link)
+	- Describe the most important features of your chosen programming model and
+what kind of platform(s) it is best suited for
+	- Find out what you can about its implementation status
+	- If It has been used in important applications, give links to experience reports
+	- State what you think are the most important innovations in your chosen
+programming model (could be in the features or in the way it is implemented)
+
+	--> 
+	
+	
+	
+	<div class="header"><h2>Google TensorFlow: Overview</h2></div>
+	<p>
+	<i>CSE590 - Assignment 2<br>
+	Student: Daniel Brown (ID#108029187)</i>
+	
+	<div class="main">
+	<h4>Introduction</h4>
+	
+	<!-- also innovations I guess - mention related models? --> 
+	TensorFlow is a Google-developed machine learning library released as open source on November 9th, 2015.  It shares characteristics with a number of other machine learning libraries, but is geared primarily towards operating at large scale on distributed/heterogeneous systems.  
+	<p>
+	At the time of its release, TensorFlow was similar to a number of other (non-distributed) ML libraries, having features like Theano's symbolic differentiation (i.e. graph-based computations) and Caffe's C++ core with Python frontend.  However, it also was an evolution of Google's DistBelief system, which had the distributed computing capibility but not the graph-based dataflow.  TensorFlow's distributed computing model was also likened to existing distributed systems, such as Dryad, CIEL, and Spark.  
+	<p>
+	Google's decision to open-source TensorFlow was thus apparently less a matter of innovating a new system and more a matter of standardizing and consolidating machine learning approaches into a massively scalable framework, with the stated goal of "accelerat[ing] research on machine learning" [2].  
+	<p>
+	
+	
+	<h4>Programming Model</h4>
+	
+	<!-- features and things --> 
+	Essentially, TensorFlow separates itself into four major layers of operation; from highest level to lowest: 
+	<ul>
+		<li>Client: The "user" program, which sets up a computation graph that is then operated on by the rest of the layers; the execution of this graph is started via a Session interface.</li>
+		<li>Distributed Master: Divides the computation graph into subgraphs and graph pieces to be run by worker services, and distributes these subgraphs/pieces to worker services accordingly.</li>
+		<li>Worker Services: Executes assigned graph computations via kernels (i.e. scheduling kernels to do computations based on the CPU/GPU/etc. hardware available).</li>
+		<li>Kernels: Do lowest-level/individual graph computations.</li>
+	</ul>
+	<p>
+	<img src="imgs/tf_architecture1.png" alt="Overall Architecture"><br> <!--style="width:400px; height:300px;"-->
+	<i>Overall architecture of TensorFlow system.  In a non-distributed system, the Master and Worker nodes are replaced by a single Session object specialized for operating only locally.</i>
+	<p>
+	<img src="imgs/tf15_fig2_computationgraph1.png" alt="Computation Graph"><br> <!--style="width:400px; height:300px;"-->
+	<i>Example computation graph.  b and W are variables; x is an input placeholder; MatMul, Add, and ReLU are operations; and C is a computed cost result.</i>
+	<p>
+	With distributed systems, the issue is then deciding how to divide the computation of the graph across worker services and hardware nodes.  TensorFlow handles this by first running a placement algorithm, which divides computation graph nodes between hardware devices (i.e. kernels) based on what hardware devices can perform which computation operations the fastest, and then distributing subgraphs of the main graph to the worker services based on the placement map.  "Send" and "Receive" nodes are then set up between devices to connect computation nodes that would be connected in the original computation graph, i.e. so different parts of the graph can synchronize correctly across the distributed system.  
+	<p>
+	<img src="imgs/tf15_fig4_dividinggraph1.png" alt="Send/Receive Nodes"><br> <!--style="width:400px; height:300px;"-->
+	<i>Enabling cross-device communication by inserting Send and Receive nodes.</i>
+	<p>
+	<!-- mention SGD thing, optimizations...? --> 
+	
+	
+	<h4>Implementation Status</h4>
+	
+	TensorFlow's main API is in Python (with a C++ core); C++, Java, and Go APIs are also listed on the TensorFlow site, but with the stipulation that they may not be completely stable.  As it is open source, the code for TensorFlow is available on GitHub under an Apache 2.0 license; users, whether they be Google internal or in the external community, are encouraged to develop frontends for the API as needed.  
+	<p>
+	Installation packages come in CPU-only and NVIDIA GPU-capable (based on CUDA and cuDNN) variants.  The "Deploy" section of TensorFlow's website also provides instructions for running on Hadoop (HDFS) and distributing TensorFlow across a server cluster.  
+	<p>
+	
+	
+	<h4>Applications</h4>
+	
+	All of the applications listed on the <a href="https://www.tensorflow.org/about/uses" target="_blank">official TensorFlow site</a> are (perhaps expectedly) Google-made; these include: 
+	<ul> 
+		<li><a href="https://www.bloomberg.com/news/articles/2015-10-26/google-turning-its-lucrative-web-search-over-to-ai-machines" target="_blank">RankBrain</a>: A machine learning-based replacement for Google's search algorithm, that learns from user searches to generate more relevant search suggestions and results.</li>
+		
+		<li><a href="https://arxiv.org/abs/1409.4842" target="_blank">Inception</a>: A convolutional neural net model for doing image classification that set "the new state of the art for classification and detection in the ImageNet Large-Scale Visual Recognition Challenge 2014 (ILSVRC 2014)".  </li>
+		
+		<li><a href="https://research.googleblog.com/2015/07/how-google-translate-squeezes-deep.html" target="_blank">On-Device Computer Vision for OCR</a>: For use in the Google Translate mobile app, i.e. doing image recognition on photos of natural language text for purposes of reading that text into the app to be translated.</li>
+	</ul>
+	<p>
+	<img src="imgs/Aurelia-aurita-3_(cropped).jpg" alt="Before DeepDream" style="width:400px; height:300px;">
+	<img src="imgs/Aurelia-aurita-3-0009.jpg" alt="After DeepDream" style="width:400px; height:300px;"><br>
+	<i><a href="https://en.wikipedia.org/wiki/DeepDream" target="_blank">DeepDream</a>, before and after: Apparently the result of applying the Inception CNN in reverse, to produce images instead of classify them.</i>
+	<p>
+	
+	</div>
+	
+	<div class="header"> 
+	<h4>References</h4>
+	<ol>
+		<li><a href="https://www.tensorflow.org/" target="_blank">https://www.tensorflow.org/</a></li>
+		
+		<li><a href="https://googleblog.blogspot.com/2015/11/tensorflow-smarter-machine-learning-for.html">https://googleblog.blogspot.com/2015/11/tensorflow-smarter-machine-learning-for.html</a></li>
+		
+		<li><a href="http://download.tensorflow.org/paper/whitepaper2015.pdf" target="_blank">http://download.tensorflow.org/paper/whitepaper2015.pdf</a></li>
+		
+		<li><a href="https://www.usenix.org/conference/osdi16/technical-sessions/presentation/abadi">https://www.usenix.org/conference/osdi16/technical-sessions/presentation/abadi</a> <br>
+		(<a href="https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf" target="_blank">https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf</a>)
+		</li>
+		
+		<li><a href="https://www.tensorflow.org/extend/architecture" target="_blank">https://www.tensorflow.org/extend/architecture</a></li>
+		
+		<li><a href="https://www.tensorflow.org/about/uses" target="_blank">https://www.tensorflow.org/about/uses</a></li>
+	</ol> 
+	</div>
+
+</body>
+
+</html>
